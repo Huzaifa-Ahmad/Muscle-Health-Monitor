@@ -2,14 +2,9 @@ import sys
 
 sys.path.append("")
 
-from micropython import const
-import time
 import uasyncio as asyncio
 import bluetooth
 import aioble
-import time
-import random
-import struct
 
 # Service
 _DEV_INFO_UUID = bluetooth.UUID(0x180A)
@@ -27,7 +22,9 @@ async def find_devices():
         async for result in scanner:
             # See if it matches our name and the environmental sensing 
             if result.name() == "ANR Corp M40" and result.manufacturer(0x05da) is not None:
-                return result.device
+                print(result)
+                device = aioble.Device(aioble.ADDR_PUBLIC, "04:ee:03:5a:54:d4")
+                return device
             
     return None
 
@@ -44,7 +41,7 @@ async def main():
     except asyncio.TimeoutError:
         print("Timeout during connection")
         return
-    
+        
     async with connection:
         try:
             dev_auto_service = await connection.service(_AUTO_ID_UUID)
@@ -66,12 +63,6 @@ async def main():
             raw_data = await dev_analog_characteristic.notified()
             muscle_activity = int.from_bytes(raw_data, "little")
             print(muscle_activity)
-    
-# # # Service
-# _AUTO_ID_UUID = bluetooth.UUID(0x1815)
-# # Characteristic
-# _DIGITAL_UUID = bluetooth.UUID(0x2A56)
-# _ANALOG_UUID = bluetooth.UUID(0x2A58)    
     
 asyncio.run(main())
     
