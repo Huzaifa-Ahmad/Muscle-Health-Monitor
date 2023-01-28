@@ -65,13 +65,7 @@ async def main():
         while True:
             raw_data = await dev_analog_characteristic.notified()
             muscle_activity = int.from_bytes(raw_data, "little")
-            print(muscle_activity)
-    
-# # # Service
-# _AUTO_ID_UUID = bluetooth.UUID(0x1815)
-# # Characteristic
-# _DIGITAL_UUID = bluetooth.UUID(0x2A56)
-# _ANALOG_UUID = bluetooth.UUID(0x2A58)    
+            print(muscle_activity)  
     
 asyncio.run(main())
     
