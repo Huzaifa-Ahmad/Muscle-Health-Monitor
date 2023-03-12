@@ -37,12 +37,12 @@ color_index = 0
 # Turn on the power to the NeoPixel 
 feathers3.set_ldo2_power(True)
 # LED is red while no BLE device connected
-pixel[0] = (255*0.05, 0, 0)
+pixel[0] = (int(255*0.05), 0, 0)
 pixel.write()
 
 async def find_devices():
     # LED is yellow while BLE searching
-    pixel[0] = (255*0.05, 255*0.05, 0)
+    pixel[0] = (int(255*0.05), int(255*0.05), 0)
     pixel.write()
     # asynchronously active scan all ble devices in the area for 10 seconds
     async with aioble.scan(5000, interval_us=10000, window_us=10000, active=True) as scanner:
@@ -51,7 +51,7 @@ async def find_devices():
             # See if it matches our name and the defined manufacturer id
             if result.name() == "ANR Corp M40" and result.manufacturer(0x05da) is not None:
                 # LED is blue when found
-                pixel[0] = (0, 0, 255*0.05)
+                pixel[0] = (0, 0, int(255*0.05))
                 pixel.write()
                 # defining the the peripheral device
                 # peripheral address is public and address is known
@@ -66,7 +66,7 @@ async def main():
     if not device:
         print("EMG sensor not found")
         # LED is red while no BLE device connected
-        pixel[0] = (255*0.05, 0, 0)
+        pixel[0] = (int(255*0.05), 0, 0)
         pixel.write()
         return
     # once the device is found connect the device
@@ -74,7 +74,7 @@ async def main():
         print("Connecting to", device)
         connection = await device.connect()
         # LED is green when connected
-        pixel[0] = (0, 255*0.05, 0)
+        pixel[0] = (0, int(255*0.05), 0)
         pixel.write()
     except asyncio.TimeoutError:
         print("Timeout during connection")
@@ -129,4 +129,3 @@ async def main():
             print(muscle_activity)
     
 asyncio.run(main())
-    
