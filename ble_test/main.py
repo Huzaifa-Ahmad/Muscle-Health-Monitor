@@ -122,10 +122,17 @@ async def main():
                 color_index = 0
                 # Invert the internal LED state every half colour cycle
                 feathers3.led_blink()
-            # receive and parse raw data
+                
+            # instead of subscribing and getting an udpate every 100ms await to get an update every second
+            # raw_data = await dev_analog_characteristic.read()
+            
+            # receive and parse raw data from the subscription
             raw_data = await dev_analog_characteristic.notified()
             # encoding is little endian (LSB first)
             muscle_activity = int.from_bytes(raw_data, "little")
             print(muscle_activity)
+            
+            # 1s task delay, Fs = 1 Hz
+            # await asyncio.sleep_ms(1000)
     
 asyncio.run(main())
