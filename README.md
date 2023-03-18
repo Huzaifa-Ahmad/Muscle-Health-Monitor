@@ -1,4 +1,4 @@
 # ESP32
 esp32_development
 
-BLE connection code for Ancorp M40 MuscleSense BLE EMG sensor
+class files and final implementation of calf monitoring device
