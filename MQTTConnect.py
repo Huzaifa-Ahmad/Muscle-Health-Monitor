@@ -35,7 +35,7 @@ def configureNetwork(ssid, password):
     print("Could not connect to WiFi")
     return False
 
-class MQTTConnection:
+class MQTTConnect:
     def __init__(self, client_id, username, password, channel_id):
         # API credentials
         self.client_id = client_id
@@ -57,18 +57,29 @@ class MQTTConnection:
             
     def sendEMG(self):
         data = []
+        timestamps = []
+        credentials = bytes("channels/{:s}/publish".format(self.channel_id), 'utf-8')
+        # generate random data
         for i in range(50):
             data.append(random.randint(0,1024))
-        
-        credentials = bytes("channels/{:s}/publish".format(self.channel_id), 'utf-8')  
-        payload = bytes("field1={}\n".format(data), 'utf-8')
+            timestamps.append(self.getTime())
+            # uncomment to replicate real time delay b/w api request
+            time.sleep(1)
+        data_str = ' '.join(map(str, data))
+        time_str = ' '.join(timestamps)   
+        payload = bytes("field2={}\n&field3={}".format(data_str, time_str), 'utf-8')
         self.client.publish(credentials, payload)
-        print("EMG Data Published")
+        print("EMG & Timestamp Data Published")
+        
+    def getTime(self):
+        year, month, date, hour, minute, second, weekday, yearday = time.localtime()
+        timestamp = '-'.join(map(str, [year, month, date, hour, second]))
+        return timestamp
     
     def sendCC(self):
         data = random.uniform(30,40)
         credentials = bytes("channels/{:s}/publish".format(self.channel_id), 'utf-8')  
-        payload = bytes("field2={:.2f}\n".format(data), 'utf-8')
+        payload = bytes("field1={:.2f}\n".format(data), 'utf-8')
         self.client.publish(credentials, payload)
         print("CC Data Published")
     
@@ -85,14 +96,12 @@ def main():
     
     if configureNetwork(wifi_ssid, wifi_pass):
         try:
-            calf_monitor = MQTTConnection(client_id, username, password, channel_id)
+            calf_monitor = MQTTConnect(client_id, username, password, channel_id)
             print("API Connected!")
         except:
             print("API Connection Failed")
             
     calf_monitor.sendCC()
-    while True:
-        calf_monitor.sendEMG()
-        time.sleep(1)
+    calf_monitor.sendEMG()
+    
 main()
-
