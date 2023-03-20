@@ -73,7 +73,7 @@ class MQTTConnect:
         
     def getTime(self):
         year, month, date, hour, minute, second, weekday, yearday = time.localtime()
-        timestamp = '-'.join(map(str, [year, month, date, hour, second]))
+        timestamp = '-'.join(map(str, [year, month, date, hour, minute, second]))
         return timestamp
     
     def sendCC(self):
@@ -102,6 +102,9 @@ def main():
             print("API Connection Failed")
             
     calf_monitor.sendCC()
-    calf_monitor.sendEMG()
+    #send 3 sets of EMG and time data
+    for i in range(3):
+        calf_monitor.sendEMG()
+        print(str(i+1)	 + " Set published")
     
 main()
