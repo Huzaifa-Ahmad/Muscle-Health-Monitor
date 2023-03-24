@@ -28,6 +28,8 @@ reading_delay_ms = 100
 # Wireless objects
 device_id = 20
 M40 = BLEConnect.BLEDevice(device_id)
+segment_counter = 0
+
 CALF_MONITOR_API = None
 
 calf_circ = 0
@@ -38,22 +40,21 @@ ble = None
 network = None
 
 async def ble_task():
+    global segment_counter
     last_data_segment = 0
-    curr_data_segment = 0
     while True:
         # get device data
-        if len(M40.ble_data) % 10 == 0 and curr_data_segment != last_data_segment:
-            print("Segment " + str(curr_data_segment) + " of BLE Data Collected!")
-            print(M40.ble_data[-10:])
-            last_data_segment = curr_data_segment
+        if segment_counter != last_data_segment:
+            print("Segment " + str(segment_counter) + " of BLE Data Collected!")
+            print(M40.ble_data)
+            last_data_segment = segment_counter
             # send the last second worth of data to the API
-            await network_task(M40.ble_data[-10:], M40.ble_timestamps[-10:])
+            await network_task(M40.ble_data, M40.ble_timestamps)
         else:
             await M40.read_device()
-            # print("BLE Notification " + str(len(M40.ble_data)) + ": " + str(M40.ble_data[-1]))
-            curr_data_segment = int(len(M40.ble_data) / 10)
-     
-              
+            if len(M40.ble_data) == 10:
+                   segment_counter += 1
+                    
 async def network_task(data, timestamps):
     global CALF_MONITOR_API, calf_circ
     CALF_MONITOR_API.send_data(calf_circ, data, timestamps)
@@ -63,7 +64,7 @@ async def network_task(data, timestamps):
         
 async def read_cc():
     global calf_circ
-    calf_circ = random.uniform(30,40)
+    calf_circ = random.uniform(30,45)
 #     global num_readings, reading_delay_ms, calf_circ
 #     adc_delta_readings = bytearray(num_readings)
 #     
@@ -87,6 +88,7 @@ async def main():
     print("Calf Circumference: " + str(calf_circ))
     
     if MQTTConnect.configure_network(WIFI_SSID, WIFI_PASS):
+        print("Network Connected")
         try:
             CALF_MONITOR_API = MQTTConnect.MQTTLink(CLIENT_ID, API_USER, API_PASS, CHANNEL_ID)
             print("API Connected")

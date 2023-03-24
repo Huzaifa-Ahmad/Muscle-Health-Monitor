@@ -99,10 +99,14 @@ class BLEDevice:
     async def get_time(self):
         year, month, day, hour, minute, second, weekday, yearday = utime.localtime(utime.time())
         second = '.'.join(map(str, [second, utime.ticks_ms() % 1000]))
+        datestamp = '-'.join(map(str, [year, month, day]))
         timestamp = ':'.join(map(str, [hour, minute, second]))
-        return timestamp
+        t = str(datestamp + " " + timestamp)
+        return t
         
     async def read_device(self):
+        if len(self.ble_data) == 10:
+            self.ble_data = []
         try:
             await self.ana_emg_char.subscribe(notify=True)
             self.ble_data.append(int.from_bytes(await self.ana_emg_char.notified(), "little"))
@@ -128,4 +132,4 @@ async def main():
         if not emg:
             return
     
-# asyncio.run(main())
+# asyncio.run(main())   

@@ -37,4 +37,4 @@ class DeviceStatus:
                 color_index = 0
                 
             # Sleep for 15ms so the colour cycle isn't too fast
-            time.sleep(0.005)
+            time.sleep(0.015)
